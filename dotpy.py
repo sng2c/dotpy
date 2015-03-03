@@ -64,6 +64,8 @@ broken = managed - linkedwell
 notmanaged = home_dotfiles - managed
 missed = set(dot for dot in base_dotfiles if not dot.isManaged())
 missed.remove(DotFile('.git'))
+missed.remove(DotFile('.gitmodules'))
+missed.remove(DotFile('.gitignore'))
 
 def status():
     # 심볼릭 링크로 된 dotfile들
