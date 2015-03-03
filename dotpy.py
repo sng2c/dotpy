@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'sng2c'
 
+
 class DotFile:
     homebase = None
     dotbase = None
@@ -63,9 +64,8 @@ linkedwell = set(dot for dot in managed if dot.isLinkedWell())
 broken = managed - linkedwell
 notmanaged = home_dotfiles - managed
 missed = set(dot for dot in base_dotfiles if not dot.isManaged())
-missed.remove(DotFile('.git'))
-missed.remove(DotFile('.gitmodules'))
-missed.remove(DotFile('.gitignore'))
+missed -= set([DotFile('.git'), DotFile('.gitmodules'), DotFile('.gitignore')])
+
 
 def status():
     # 심볼릭 링크로 된 dotfile들
@@ -83,6 +83,7 @@ def status():
     print
     print "[Not Managed]"
     print notmanaged
+
 
 def attach(filename):
     dotfile = DotFile(os.path.basename(filename))
@@ -121,18 +122,19 @@ def recover():
             print "'%s' is already exists. Try again." % dotfile
         else:
             os.symlink(dotfile.dotpath(), dotfile.path())
-    return True,""
+    return True, ""
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="dotfiles helper")
     subparsers = parser.add_subparsers(title="Commands", dest="action")
-    parser_status = subparsers.add_parser('status', help='show dotfiles',)
-    parser_attach = subparsers.add_parser('attach', help='attach dotfiles to manage',)
+    parser_status = subparsers.add_parser('status', help='show dotfiles', )
+    parser_attach = subparsers.add_parser('attach', help='attach dotfiles to manage', )
     parser_attach.add_argument('files', nargs='+')
-    parser_detach = subparsers.add_parser('detach', help='detach dotfiles managing',)
+    parser_detach = subparsers.add_parser('detach', help='detach dotfiles managing', )
     parser_detach.add_argument('files', nargs='+')
 
-    parser_recover = subparsers.add_parser('recover', help='recover missing symlinks',)
+    parser_recover = subparsers.add_parser('recover', help='recover missing symlinks', )
 
     args = parser.parse_args()
 
