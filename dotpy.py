@@ -70,19 +70,24 @@ missed -= set([DotFile('.git'), DotFile('.gitmodules'), DotFile('.gitignore')])
 def status():
     # 심볼릭 링크로 된 dotfile들
     print "[Managed]"
-    print managed
+    for f in managed:
+        print "\t%s" % f
     print
     print "[Linked]"
-    print linkedwell
+    for f in linkedwell:
+        print "\t%s" % f
     print
     print "[Broken SymLinks]"
-    print broken
+    for f in broken:
+        print "\t%s" % f
     print
     print "[Missed SymLinks]"
-    print missed
+    for f in missed:
+        print "\t%s" % f
     print
     print "[Not Managed]"
-    print notmanaged
+    for f in notmanaged:
+        print "\t%s" % f
 
 
 def attach(filename):
