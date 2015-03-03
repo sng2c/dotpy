@@ -63,6 +63,7 @@ linkedwell = set(dot for dot in managed if dot.isLinkedWell())
 broken = managed - linkedwell
 notmanaged = home_dotfiles - managed
 missed = set(dot for dot in base_dotfiles if not dot.isManaged())
+missed.remove(DotFile('.git'))
 
 def status():
     # 심볼릭 링크로 된 dotfile들
@@ -114,8 +115,11 @@ def recover():
     print "[Missed Symlinks]"
     for dotfile in missed:
         print dotfile.path(), "->", dotfile.dotpath()
-        os.symlink(dotfile.dotpath(), dotfile.path())
-    return True,
+        if os.path.exists(dotfile.path()):
+            print "'%s' is already exists. Try again." % dotfile
+        else:
+            os.symlink(dotfile.dotpath(), dotfile.path())
+    return True,""
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="dotfiles helper")
