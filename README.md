@@ -1,4 +1,4 @@
-# docpy
+# dotpy
 
 심플한 dotfiles 헬퍼.
 
