@@ -48,23 +48,16 @@ import argparse
 import os
 
 HOME = os.environ.get("HOME")
-cur_path = os.path.dirname(__file__)
-DOT_BASE = os.path.realpath("%s/dotfiles" % cur_path)
+DOT_BASE = os.path.abspath("%s/dotfiles" % HOME)
+if not os.path.exists(DOT_BASE): os.mkdir(DOT_BASE, 0755)
 
 DotFile.homebase = HOME
 DotFile.dotbase = DOT_BASE
-
-argp = argparse.ArgumentParser(description="dotfiles helper")
-# argp.add_argument()
-args = argp.parse_args()
 
 import re
 # dotfile들을 나열한다.
 home_dotfiles = set(DotFile(dot) for dot in os.listdir(HOME) if re.match(r"\.[^\.].*", dot))
 base_dotfiles = set(DotFile(dot) for dot in os.listdir(DOT_BASE) if re.match(r"\.[^\.].*", dot))
-
-if not os.path.exists(DOT_BASE): os.mkdir(DOT_BASE, 0755)
-
 managed = set(dot for dot in home_dotfiles if dot.isManaged())
 linkedwell = set(dot for dot in managed if dot.isLinkedWell())
 broken = managed - linkedwell
@@ -75,41 +68,45 @@ def status():
     # 심볼릭 링크로 된 dotfile들
     print "[Managed]"
     print managed
+    print
     print "[Linked]"
     print linkedwell
+    print
     print "[Broken SymLinks]"
     print broken
+    print
     print "[Missed SymLinks]"
     print missed
+    print
     print "[Not Managed]"
     print notmanaged
 
-def add(filename):
+def attach(filename):
     dotfile = DotFile(os.path.basename(filename))
     if dotfile.isManaged():
-        return False, "This file has already managed"
+        return False, "'%s' file has already managed" % dotfile
     if dotfile.isLink():
-        return False, "This file is a symbolic link"
+        return False, "'%s' file is a symbolic link" % dotfile
 
     print dotfile.path(), "->", dotfile.dotpath()
     os.rename(dotfile.path(), dotfile.dotpath())
     os.symlink(dotfile.dotpath(), dotfile.path())
-    return True,
+    return True, ""
 
 
-def remove(filename):
+def detach(filename):
     dotfile = DotFile(os.path.basename(filename))
     if not dotfile.isManaged():
-        return False, "This file is not being managed"
+        return False, "'%s' is not being managed" % dotfile
     if not dotfile.isLink():
-        return False, "This file is not a symbolic link"
+        return False, "'%s' file is not a symbolic link" % dotfile
 
     print dotfile.realpath(), "->", dotfile.path()
     realpath = dotfile.realpath()
     path = dotfile.path()
     os.unlink(path)
     os.rename(realpath, path)
-    return True,
+    return True, ""
 
 
 def recover():
@@ -120,5 +117,32 @@ def recover():
         os.symlink(dotfile.dotpath(), dotfile.path())
     return True,
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="dotfiles helper")
+    subparsers = parser.add_subparsers(title="Commands", dest="action")
+    parser_status = subparsers.add_parser('status', help='show dotfiles',)
+    parser_attach = subparsers.add_parser('attach', help='attach dotfiles to manage',)
+    parser_attach.add_argument('files', nargs='+')
+    parser_detach = subparsers.add_parser('detach', help='detach dotfiles managing',)
+    parser_detach.add_argument('files', nargs='+')
 
-print status()
+    parser_recover = subparsers.add_parser('recover', help='recover missing symlinks',)
+
+    args = parser.parse_args()
+
+    if args.action == 'status':
+        status()
+    elif args.action == 'attach':
+        for f in args.files:
+            res, msg = attach(f)
+            if not res:
+                print msg
+    elif args.action == 'detach':
+        for f in args.files:
+            res, msg = detach(f)
+            if not res:
+                print msg
+    elif args.action == 'recover':
+        recover()
+    else:
+        parser.print_help()
