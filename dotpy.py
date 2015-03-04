@@ -58,14 +58,22 @@ DotFile.homebase = HOME
 DotFile.dotbase = DOT_BASE
 
 # dotfile들을 나열한다.
-home_dotfiles = set(DotFile(dot) for dot in os.listdir(HOME) if re.match(r"\.[^\.].*", dot))
-base_dotfiles = set(DotFile(dot) for dot in os.listdir(DOT_BASE) if re.match(r"\.[^\.].*", dot))
+home_dotfiles = set(DotFile(dot)
+                    for dot in os.listdir(HOME)
+                    if re.match(r"\.[^\.].*", dot))
+
+base_dotfiles = set(DotFile(dot)
+                    for dot in os.listdir(DOT_BASE)
+                    if re.match(r"\.[^\.].*", dot))
+
 managed = set(dot for dot in home_dotfiles if dot.isManaged())
 linkedwell = set(dot for dot in managed if dot.isLinkedWell())
 broken = managed - linkedwell
 notmanaged = home_dotfiles - managed
 missed = set(dot for dot in base_dotfiles if not dot.isManaged())
-missed -= set([DotFile('.git'), DotFile('.gitmodules'), DotFile('.gitignore')])
+missed -= set([DotFile('.git'),
+               DotFile('.gitmodules'),
+               DotFile('.gitignore')])
 
 
 def status():
@@ -128,14 +136,20 @@ def recover():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="dotfiles helper")
+
     subparsers = parser.add_subparsers(title="Commands", dest="action")
-    parser_status = subparsers.add_parser('status', help='show dotfiles', )
-    parser_attach = subparsers.add_parser('attach', help='attach dotfiles to manage', )
+    parser_status = \
+        subparsers.add_parser('status', help='show dotfiles', )
+    parser_attach = \
+        subparsers.add_parser('attach', help='attach dotfiles to manage', )
     parser_attach.add_argument('files', nargs='+')
-    parser_detach = subparsers.add_parser('detach', help='detach dotfiles managing', )
+
+    parser_detach = \
+        subparsers.add_parser('detach', help='detach dotfiles managing', )
     parser_detach.add_argument('files', nargs='+')
 
-    parser_recover = subparsers.add_parser('recover', help='recover missing symlinks', )
+    parser_recover = \
+        subparsers.add_parser('recover', help='recover missing symlinks', )
 
     args = parser.parse_args()
 
