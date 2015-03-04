@@ -3,6 +3,11 @@
 __author__ = 'sng2c'
 
 
+import argparse
+import os
+import re
+
+
 class DotFile:
     homebase = None
     dotbase = None
@@ -45,9 +50,6 @@ class DotFile:
         return hash(self) == hash(other)
 
 
-import argparse
-import os
-
 HOME = os.environ.get("HOME")
 DOT_BASE = os.path.abspath("%s/dotfiles" % HOME)
 if not os.path.exists(DOT_BASE): os.mkdir(DOT_BASE, 0755)
@@ -55,7 +57,6 @@ if not os.path.exists(DOT_BASE): os.mkdir(DOT_BASE, 0755)
 DotFile.homebase = HOME
 DotFile.dotbase = DOT_BASE
 
-import re
 # dotfile들을 나열한다.
 home_dotfiles = set(DotFile(dot) for dot in os.listdir(HOME) if re.match(r"\.[^\.].*", dot))
 base_dotfiles = set(DotFile(dot) for dot in os.listdir(DOT_BASE) if re.match(r"\.[^\.].*", dot))
