@@ -4,8 +4,6 @@ Simple dotfiles helper.
 
 # Features
 
-It
-
 1. It makes ~/dotfiles directory,
 1. It moves `attach`ed files into ~/dotfiles/
 1. It makes symbolic links for the moved files onto original locations.
