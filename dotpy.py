@@ -3,6 +3,11 @@
 __author__ = 'sng2c'
 
 
+import argparse
+import os
+import re
+
+
 class DotFile:
     homebase = None
     dotbase = None
@@ -45,9 +50,6 @@ class DotFile:
         return hash(self) == hash(other)
 
 
-import argparse
-import os
-
 HOME = os.environ.get("HOME")
 DOT_BASE = os.path.abspath("%s/dotfiles" % HOME)
 if not os.path.exists(DOT_BASE): os.mkdir(DOT_BASE, 0755)
@@ -55,39 +57,48 @@ if not os.path.exists(DOT_BASE): os.mkdir(DOT_BASE, 0755)
 DotFile.homebase = HOME
 DotFile.dotbase = DOT_BASE
 
-import re
 # dotfile들을 나열한다.
-home_dotfiles = set(DotFile(dot) for dot in os.listdir(HOME) if re.match(r"\.[^\.].*", dot))
-base_dotfiles = set(DotFile(dot) for dot in os.listdir(DOT_BASE) if re.match(r"\.[^\.].*", dot))
+home_dotfiles = set(DotFile(dot)
+                    for dot in os.listdir(HOME)
+                    if re.match(r"\.[^\.].*", dot))
+
+base_dotfiles = set(DotFile(dot)
+                    for dot in os.listdir(DOT_BASE)
+                    if re.match(r"\.[^\.].*", dot))
+
 managed = set(dot for dot in home_dotfiles if dot.isManaged())
 linkedwell = set(dot for dot in managed if dot.isLinkedWell())
 broken = managed - linkedwell
 notmanaged = home_dotfiles - managed
 missed = set(dot for dot in base_dotfiles if not dot.isManaged())
-missed -= set([DotFile('.git'), DotFile('.gitmodules'), DotFile('.gitignore')])
+missed -= set([DotFile('.git'),
+               DotFile('.gitmodules'),
+               DotFile('.gitignore')])
 
 
 def status():
     # 심볼릭 링크로 된 dotfile들
-    print "[Managed]"
-    for f in managed:
-        print "\t%s" % f
-    print
-    print "[Linked]"
-    for f in linkedwell:
-        print "\t%s" % f
-    print
-    print "[Broken SymLinks]"
-    for f in broken:
-        print "\t%s" % f
-    print
-    print "[Missed SymLinks]"
-    for f in missed:
-        print "\t%s" % f
-    print
-    print "[Not Managed]"
-    for f in notmanaged:
-        print "\t%s" % f
+    print """
+    [Managed]
+    {0}
+
+    [Linked]
+    {1}
+
+    [Broken SymLinks]
+    {2}
+
+    [Missed SymLinks]
+    {3}
+
+    [Not managed]
+    {4}
+    """.format(set_print(managed), set_print(linkedwell), set_print(broken),
+               set_print(missed), set_print(notmanaged))
+
+
+def set_print(set_name):
+    return ", ".join(str(e) for e in set_name)
 
 
 def attach(filename):
@@ -132,14 +143,20 @@ def recover():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="dotfiles helper")
+
     subparsers = parser.add_subparsers(title="Commands", dest="action")
-    parser_status = subparsers.add_parser('status', help='show dotfiles', )
-    parser_attach = subparsers.add_parser('attach', help='attach dotfiles to manage', )
+    parser_status = \
+        subparsers.add_parser('status', help='show dotfiles', )
+    parser_attach = \
+        subparsers.add_parser('attach', help='attach dotfiles to manage', )
     parser_attach.add_argument('files', nargs='+')
-    parser_detach = subparsers.add_parser('detach', help='detach dotfiles managing', )
+
+    parser_detach = \
+        subparsers.add_parser('detach', help='detach dotfiles managing', )
     parser_detach.add_argument('files', nargs='+')
 
-    parser_recover = subparsers.add_parser('recover', help='recover missing symlinks', )
+    parser_recover = \
+        subparsers.add_parser('recover', help='recover missing symlinks', )
 
     args = parser.parse_args()
 
