@@ -1,21 +1,23 @@
 # dotpy
 
-심플한 dotfiles 헬퍼.
+Simple dotfiles helper.
 
-# 기능
+# Features
 
-1. ~/dotfiles 디렉토리를 생성하고, 
-1. attach한 파일들을 ~/dotfiles/ 안으로 옮기면서
-1. 옮긴파일로의 심볼릭 링크를 원래자리에 만듭니다.
-1. ~/dotfiles 디렉토리를 git으로 관리하면 됩니다.
+It
 
-# 제약 사항
+1. It makes ~/dotfiles directory,
+1. It moves `attach`ed files into ~/dotfiles/
+1. It makes symbolic links for the moved files onto original locations.
+1. And, You can manage the files in ~/dotfiles using GIT manually.
 
-* 이미 관리되고 있는 파일은 detach만 가능합니다.
-* 관리되고 있지않은 심볼릭 링크는 attach만 가능합니다.
-* recover는 존재하지 않는 심볼릭 링크를 복구할 때 사용합니다.
-* 아직 출력이 구립니다.
-* ~/ 에 있는 파일만 관리가 가능합니다.
+# Limited
+
+* Already managed dotfiles can be `detach`ed.
+* Non-managed dotfiles can be `attach`ed.
+* `recover` recovers only symbolic links which is not yet exists. 
+* Not yet nice status-output.
+* Only for dotfiles on ~/ directory.
 
 ```bash
 $ python dotpy.py
@@ -34,3 +36,7 @@ Commands:
     detach              detach dotfiles managing
     recover             recover missing symlinks
 ```
+# Thanks to contributors
+
+* [@ujuc](https://github.com/sng2c/dotpy/commits?author=ujuc)
+
